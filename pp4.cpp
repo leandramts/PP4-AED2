@@ -260,8 +260,60 @@ public:
     }
 };
 
+template <typename T>
+class UnionFind
+{
+private:
+    std::vector<T> parent;
+    std::vector<T> rank;
+
+public:
+    UnionFind(T n)
+    {
+        parent.resize(n);
+        rank.resize(n);
+
+        for (T i = 0; i < n; ++i) // make_set() ou initialize()
+        {
+            parent[i] = i;
+            rank[i] = 0;
+        }
+    }
+
+    void unite(T u, T v) // usando union-by-rank
+    {
+        T root_u = find(u);
+        T root_v = find(v);
+
+        if (root_u != root_v)
+        {
+            if (rank[root_u] < rank[root_v])
+            {
+                parent[root_u] = root_v;
+            }
+            else if (rank[root_u] > rank[root_v])
+            {
+                parent[root_v] = root_u;
+            }
+            else
+            {
+                parent[root_v] = root_u;
+                rank[root_u]++;
+            }
+        }
+    }
+
+    T find(T v) // com path compression
+    {
+        if (v != parent[v])
+        {
+            parent[v] = find(parent[v]);
+        }
+        return parent[v];
+    }
+};
+
 int main()
 {
     return 0;
-    
 }
