@@ -8,7 +8,7 @@
 
 using uint = unsigned int;
 using Vertex = unsigned int;
-using Weight = unsigned int;
+using Weight = float;
 using VertexWeightPair = std::pair<Vertex, Weight>;
 
 class WeightedGraphAL
@@ -310,6 +310,59 @@ public:
             parent[v] = find(parent[v]);
         }
         return parent[v];
+    }
+};
+
+class MSTKruskal {
+private:
+    struct Edge {
+        Vertex src, dest;
+        Weight weight;
+    };
+    unsigned int num_vertices;
+    std::vector<Edge> edges;
+
+    void selectionSort(std::vector<Edge>& arr) {
+        int n = arr.size();
+        for (int i = 0; i < n - 1; i++) {
+            int min_idx = i;
+            for (int j = i + 1; j < n; j++) {
+                if (arr[j].weight < arr[min_idx].weight) {
+                    min_idx = j;
+                }
+            }
+            if (min_idx != i) {
+                Edge temp = arr[min_idx];
+                arr[min_idx] = arr[i];
+                arr[i] = temp;
+            }
+        }
+    }
+
+public:
+    MSTKruskal(Vertex num_vertices) : num_vertices(num_vertices) {}
+
+    void addEdge(Vertex u, Vertex v, Weight w) {
+        edges.push_back({u, v, w});
+    }
+
+    std::vector<Edge> findMST() {
+        std::vector<Edge> A; 
+        UnionFind<Vertex> uf(num_vertices);
+        std::vector<Edge> L = edges;
+        selectionSort(L);
+
+        for (const auto& edge : L) {
+            Vertex root_src = uf.find(edge.src);
+            Vertex root_dest = uf.find(edge.dest);
+            
+            if (root_src != root_dest) {
+                A.push_back(edge);
+                uf.unite(edge.src, edge.dest);
+            }
+        }
+
+        return A;
     }
 };
 
