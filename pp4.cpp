@@ -384,9 +384,6 @@ public:
     }
 
     Weight get_sum() {
-        if (!this->is_diseased) {
-            return 0.0;
-        }
         std::vector<Edge> mst = internal_graph.findMST();
         Weight sum = 0.0;
         for (const auto& edge : mst) {
@@ -400,7 +397,85 @@ public:
     }
 };
 
+class BrainPaths {
+private:
+    WeightedGraphAL brain_graph;
+    std::vector<NeuronBlock> blocks;
+    Vertex num_blocks;
+
+public:
+    BrainPaths(Vertex num_brain_blocks) : brain_graph(num_brain_blocks), num_blocks(num_brain_blocks)
+    {
+        blocks.resize(num_brain_blocks);
+    }
+
+    void add_brain_connection(Vertex u, Vertex v, Weight w) {
+        brain_graph.add_edge(u, v, w);
+    }
+
+    void set_neuron_block(Vertex id, Vertex num_neurons, bool is_diseased, const std::vector<Edge>& edges) {
+        blocks[id] = NeuronBlock(num_neurons, is_diseased, edges);
+    }
+
+    Weight process_treatment(Vertex entry_point, Vertex exit_point) {
+        AlgorithmDijkstra dijkstra(brain_graph);
+        dijkstra.Dijkstra(entry_point);
+        std::vector<Vertex> path = dijkstra.get_path(exit_point);
+
+        Weight total_weight_sum = 0;
+
+        for (Vertex current_block_id : path) {
+                NeuronBlock& current_block = blocks[current_block_id];
+                if (current_block.isDiseased()) 
+                    total_weight_sum += current_block.get_sum();
+        }
+            
+        return total_weight_sum;
+    }
+};
+
 int main()
 {
+    uint num_brain_nodes, num_brain_edges;
+    std::cin >> num_brain_nodes >> num_brain_edges;
+
+    BrainPaths brain(num_brain_nodes);
+
+    for (uint i = 0; i < num_brain_edges; i++)
+    {
+        Vertex u, v;
+        Weight w;
+        std::cin >> u >> v >> w;
+        brain.add_brain_connection(u-1, v-1, w);
+    }
+    
+    Vertex brain_in, brain_out;
+    std::cin >> brain_in >> brain_out;
+
+    for (uint i = 0; i < num_brain_nodes; i++)
+    {
+        uint num_block_nodes, num_block_edges, num_diseased;
+        std::cin >> num_block_nodes >> num_block_edges;
+        std::cin >> num_diseased;
+
+        if (num_diseased > 0) {
+            int dummy_neuron_id;
+            for (uint d = 0; d < num_diseased; d++) {
+                std::cin >> dummy_neuron_id; // le e descarta os neuronios doentes
+            }
+        }
+
+        std::vector<Edge> edges;
+        for (uint j = 0; j < num_block_edges; j++)
+        {
+            Vertex u, v;
+            Weight w;
+            std::cin >> u >> v >> w;
+            edges.push_back({u-1, v-1, w});
+        }
+        brain.set_neuron_block(i, num_block_nodes, num_diseased > 0, edges);
+    }
+
+    std::cout << brain.process_treatment(brain_in-1, brain_out-1) << std::endl;
     return 0;
 }
