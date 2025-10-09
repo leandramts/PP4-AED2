@@ -33,7 +33,7 @@ public:
 
     void add_edge(const Vertex &u, const Vertex &v, const Weight &w)
     {
-        if (u < 0 || v < 0 || u > num_vertices || v > num_vertices || u == v)
+        if (u < 0 || v < 0 || u >= num_vertices || v >= num_vertices || u == v)
             throw std::invalid_argument("Vertices invalidos");
 
         auto pair1 = std::make_pair(v, w);
@@ -47,9 +47,9 @@ public:
         num_edges++;
     }
 
-    const std::list<VertexWeightPair> get_adj(const Vertex &u) const
+    const std::list<VertexWeightPair>& get_adj(const Vertex &u) const
     {
-        if (u < 0 || u > num_vertices)
+        if (u < 0 || u >= num_vertices)
             throw std::invalid_argument("Vertice invalido");
 
         return adj[u];
@@ -58,6 +58,11 @@ public:
     uint get_num_vertices() const
     {
         return num_vertices;
+    }
+
+     uint get_num_edges() const
+    {
+        return num_edges;
     }
 };
 
@@ -366,7 +371,115 @@ public:
     }
 };
 
+class Brain
+{
+    private:
+        WeightedGraphAL *g_brain;
+        std::vector<WeightedGraphAL*> g_blocks;
+
+        uint order_brain;
+        uint tam_brain; 
+        std::pair<Vertex, Vertex> in_out_nano_robot;
+        std::vector<std::vector<Vertex>> sick_neurons_per_block;
+    
+    void brain_graph()
+    {
+        std:: cin >> order_brain >> tam_brain;
+
+        g_brain = new WeightedGraphAL(order_brain);
+
+        for (uint i = 0; i < tam_brain; i++)
+        {
+            Vertex u, v;
+            Weight w;
+
+            std:: cin >> u >> v >> w;
+            g_brain->add_edge(u-1, v-1, w);
+        }
+        
+    }
+
+    void init_NanoRobot()
+    {
+        Vertex in;
+        Vertex out;
+
+        std::cin >> in;
+        std:: cin >> out;
+
+        in_out_nano_robot = std::make_pair(in-1, out-1);
+    }
+
+    void blocks_graph()
+    {
+        g_blocks.resize(order_brain + 1, nullptr);
+        sick_neurons_per_block.resize(order_brain + 1);
+
+        for (uint i = 1; i <= order_brain; i++)
+        {
+            uint order_block, tam_block;
+            std:: cin >> order_block >> tam_block;
+
+            g_blocks[i] = new WeightedGraphAL(order_block);
+
+            uint n_sick_neurons;
+            std:: cin >> n_sick_neurons;
+
+
+            if (n_sick_neurons > 0)
+            {
+                for (uint s = 0; s < n_sick_neurons; s++)
+                {
+                    Vertex s_neuron;
+                    std::cin >> s_neuron;
+                    sick_neurons_per_block[i].push_back(s_neuron - 1);
+                }
+            }
+
+
+            for (uint t = 0; t < tam_block; t++)
+            {
+                Vertex u, v;
+                Weight w;
+                std:: cin >> u >> v >> w;
+                g_blocks[i]->add_edge(u-1, v-1, w);
+            }
+        }
+
+    }
+
+    public:
+        Brain() : g_brain(nullptr) {}
+        ~Brain()
+    {
+        delete g_brain;
+        for (WeightedGraphAL* p : g_blocks)
+        {
+            delete p;
+        }
+    }
+
+
+    void input_data()
+    {
+        brain_graph();
+        init_NanoRobot();
+        blocks_graph();
+    }
+
+};
+
+class NanoRobotsCure
+{
+    private:
+    WeightedGraphAL g;
+
+
+};
+
 int main()
 {
+    Brain brain;
+    brain.input_data();
     return 0;
 }
