@@ -427,6 +427,8 @@ public:
         dijkstra.Dijkstra(entry_point);
         std::vector<Vertex> path = dijkstra.get_path(exit_point);
 
+        path.pop_back();
+
         Weight total_weight_sum = 0;
 
         for (Vertex current_block_id : path) {
