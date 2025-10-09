@@ -11,6 +11,11 @@ using Vertex = unsigned int;
 using Weight = float;
 using VertexWeightPair = std::pair<Vertex, Weight>;
 
+struct Edge {
+    Vertex src, dest;
+    Weight weight;
+};
+
 class WeightedGraphAL
 {
 private:
@@ -315,10 +320,6 @@ public:
 
 class MSTKruskal {
 private:
-    struct Edge {
-        Vertex src, dest;
-        Weight weight;
-    };
     unsigned int num_vertices;
     std::vector<Edge> edges;
 
@@ -363,6 +364,39 @@ public:
         }
 
         return A;
+    }
+};
+
+class NeuronBlock {
+private:
+    bool is_diseased;
+    MSTKruskal internal_graph;
+
+public:
+    NeuronBlock() : is_diseased(false), internal_graph(0) {}
+
+    NeuronBlock(Vertex num_neurons, bool diseased, const std::vector<Edge>& internal_edges) 
+            : is_diseased(diseased), internal_graph(num_neurons)
+    {
+        for (const auto& edge : internal_edges) {
+            this->internal_graph.addEdge(edge.src, edge.dest, edge.weight);
+        }
+    }
+
+    Weight get_sum() {
+        if (!this->is_diseased) {
+            return 0.0;
+        }
+        std::vector<Edge> mst = internal_graph.findMST();
+        Weight sum = 0.0;
+        for (const auto& edge : mst) {
+            sum += edge.weight;
+        }
+        return sum;
+    }
+
+    bool isDiseased() const {
+        return is_diseased;
     }
 };
 
