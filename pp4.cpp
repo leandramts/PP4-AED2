@@ -38,7 +38,7 @@ public:
 
     void add_edge(const Vertex &u, const Vertex &v, const Weight &w)
     {
-        if (u < 0 || v < 0 || u > num_vertices || v > num_vertices || u == v)
+        if (u < 0 || v < 0 || u >= num_vertices || v >= num_vertices || u == v)
             throw std::invalid_argument("Vertices invalidos");
 
         auto pair1 = std::make_pair(v, w);
@@ -52,9 +52,9 @@ public:
         num_edges++;
     }
 
-    const std::list<VertexWeightPair> get_adj(const Vertex &u) const
+    const std::list<VertexWeightPair>& get_adj(const Vertex &u) const
     {
-        if (u < 0 || u > num_vertices)
+        if (u < 0 || u >= num_vertices)
             throw std::invalid_argument("Vertice invalido");
 
         return adj[u];
@@ -63,6 +63,11 @@ public:
     uint get_num_vertices() const
     {
         return num_vertices;
+    }
+
+     uint get_num_edges() const
+    {
+        return num_edges;
     }
 };
 
